@@ -1,0 +1,21 @@
+name: artex-whitehat
+services:
+  report:
+    image: ${WHITEHAT_PYTHON_IMAGE:?Set WHITEHAT_PYTHON_IMAGE to a trusted Python 3.10+ image by digest}
+    user: "${WHITEHAT_UID:-1000}:${WHITEHAT_GID:-1000}"
+    read_only: true
+    network_mode: none
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 32
+    mem_limit: 512m
+    cpus: 1.0
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+    working_dir: /app
+    volumes:
+      - ./whitehat:/app/whitehat:ro
+      - ${WHITEHAT_INPUT:?Set WHITEHAT_INPUT to your case directory}:/input:ro
+      - ${WHITEHAT_OUTPUT:?Set WHITEHAT_OUTPUT to a writable parent directory}:/output:rw
+    entrypoint: [python3, -m, whitehat]
+    command: [report, /input/case.json, --out, /output/result]
