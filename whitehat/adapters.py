@@ -31,6 +31,8 @@ def validate_rule(rule, target, control):
         require(isinstance(rule["finding_id"], str) and re.fullmatch(r"[1-9][0-9]{0,18}", rule["finding_id"]),
                 "invalid standalone finding ID")
         urls = [endpoint(u) for u in (target, control)]
+        origins = {(u.hostname.lower().rstrip("."), u.port or (443 if u.scheme == "https" else 80)) for u in urls}
+        require(len(origins) == 2, "control must use a distinct reference origin")
         require(urls[0].scheme == urls[1].scheme and urls[0].path == urls[1].path
                 and urls[0].query == urls[1].query, "control must use the same scheme, path and query")
     elif kind == "tcp.exposure":

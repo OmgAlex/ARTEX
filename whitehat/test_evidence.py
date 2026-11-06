@@ -135,6 +135,11 @@ class Collection(unittest.TestCase):
         self.runs[0]["file"] = "../outside.zip"
         self.assertEqual(self.status(), "invalid_evidence")
 
+    def test_control_origin_alias_rejected(self):
+        self.case["control"] = "https://FIXTURE.TEST:443/api/ping"
+        with self.assertRaises(Invalid):
+            self.result()
+
     def test_different_revision(self):
         self.runs[0]["revision"] = "different"
         with self.assertRaises(Invalid):
@@ -190,8 +195,8 @@ class PrivateObject(unittest.TestCase):
     def test_denial(self):
         self.assertEqual(self.states({"error":"forbidden"}, 403), ["absent"])
 
-    def test_denial_leaking_marker_is_not_clean(self):
-        self.assertEqual(self.states({"marker":"fixture-marker"}, 403), ["unknown"])
+    def test_denial_leaking_exact_private_marker_is_positive(self):
+        self.assertEqual(self.states({"marker":"fixture-marker"}, 403), ["present"])
 
     def test_same_account_two_credentials(self):
         self.assertNotIn("present", self.states({"marker":"fixture-marker"}, who="owner"))

@@ -53,7 +53,8 @@ def private_samples(records, target, identity, rule):
                          for o in baseline))
         if known:
             marker = field_hash(r, rule["marker_field"])
-            if r["status"] == 200 and marker == rule["marker_sha256"]:
+            if marker == rule["marker_sha256"]:
+                # Disclosure is visible in the body even when the server labels it forbidden.
                 state = "present"
             elif r["status"] in (403, 404) and r["body"] == b"":
                 state = "absent"
